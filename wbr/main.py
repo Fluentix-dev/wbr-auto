@@ -1,5 +1,6 @@
 import pyautogui
 import time
+import sys
 
 # ─── CONFIG ────────────────────────────────────────────────────────────────────
 
@@ -35,6 +36,7 @@ def main():
         print("⚠️ No words found in data.txt.")
         return
 
+    print()
     input("🌐 Open https://whatbeatsarock.com and press ENTER to begin...")
 
     not_found_img = True
@@ -46,7 +48,7 @@ def main():
             pass
 
     NUMS = {'0': "zero", '1': "one", '2': "two", '3': "three", '4': "four", "5": "five", "6": "six", "7": "seven", '8': 'eight', '9': 'nine'}
-
+    p = 0
     for i, word in enumerate(words, 1):
         for number in NUMS:
             word = word.replace(number, NUMS[number])
@@ -62,10 +64,13 @@ def main():
             try:
                 wait_and_click(NEXT_IMG, "next button")
                 not_found_img = False
+                p += 1
             except KeyboardInterrupt:
                 print("Stopped")
+                sys.exit(1)
             except:
-                pass
+                if p < 11:
+                    pyautogui.scroll(-1)
 
     print("🎉 All words processed!")
 
