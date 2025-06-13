@@ -1,5 +1,5 @@
 pyautogui
 opencv-python
-BeautifulSoup
+BeautifulSoup4
 requests
 pillow
