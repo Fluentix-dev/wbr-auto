@@ -1,4 +1,4 @@
-# wbr-auto v0.1
+# wbr-auto v1.1
 
 Auto-plays the game [WhatBeatsRock](https://whatbeatsrock.com) with image-detection via of [OpenCV](https://pypi.org/project/opencv-python/) with [word list](https://nglam.dev/resources/wbr/).
 
@@ -62,9 +62,11 @@ When using, please make sure that your browser is clear and visible with **defau
 
 ## Last words
 
-**THIS PROJECT IS MADE FOR EDUCATIONAL PURPOSES ONLY**
+**THIS PROJECT IS MADE FOR EDUCATIONAL PURPOSES ONLY.**
 
-And, have fun, we suppose.
+And, have fun.
+
+Contribution can be found [here](https://contribute.fluentix.dev).
 
 Also join our [discord](https://fluentix.dev/discord).
 
