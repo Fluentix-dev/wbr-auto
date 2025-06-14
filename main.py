@@ -44,7 +44,7 @@ def two():
 def inp():
     print("-"*30)
     print()
-    print("""WBR-auto v1: automatically plays What Beats Rock for you.
+    print("""WBR-auto v1.1: automatically plays What Beats Rock for you.
 --Made by Fluentix (https://fluentix.dev)--
 
 Get involved: https://contribute.fluentix.dev
