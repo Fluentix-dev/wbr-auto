@@ -155,6 +155,7 @@ class WBR_Browser:
 class WBR_WordBank:
     def __init__(self):
         self.wordBank = []
+        self.ParseFile()
     
     def GetWordBank(self) -> List[str]:
         """
@@ -213,11 +214,9 @@ class WBR_WordBank:
         return True
     
     @staticmethod
-    def RemoveNumbers(s: str) -> str:
+    def FinalizeWord(s: str) -> str:
         """
-        Removes all numbers inside the string 's'.
-
-        For example string "abc123" -> "abconetwothree"
+        Removes all crappy characters that break the game.
         """
 
         nums = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
@@ -227,10 +226,17 @@ class WBR_WordBank:
             try:
                 char = int(char)
                 finalized += nums[char]
+                continue
             except:
-                finalized += char
+                pass
+
+            if char == '"':
+                continue
+
+            finalized += char
 
         return finalized
+            
 
 
 
@@ -238,7 +244,6 @@ class WBR_Main:
     def __init__(self):
         # retrieving word bank (default from the data folder first)
         self.word_bank_instance = WBR_WordBank()
-        self.word_bank_instance.ParseFile()
 
         # set up the words
         self.words = self.word_bank_instance.GetWordBank()
@@ -357,15 +362,16 @@ Upload your own word bank
     def Run(self):
         WBR_Console.Clear()
         self.browser_instance = WBR_Browser()
+        self.words = self.word_bank_instance.GetWordBank()
+
         print("----------------")
         input("Press enter to start wbr-auto: ")
 
         for i, word in enumerate(self.words):
-            word = WBR_WordBank.RemoveNumbers(word)
+            word = WBR_WordBank.FinalizeWord(word)
 
             WBR_Console.PrintInfo(f"Word {i+1}/{len(self.words)}...")
             WBR_Console.PrintInfo(f"Word: {word}")
-
             self.browser_instance.TypeWord(word)
             time.sleep(DELAY_PER_ACTION)
             self.browser_instance.ClickNextButton()
