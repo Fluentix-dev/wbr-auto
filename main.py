@@ -1,10 +1,10 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.keys import Keys # For pressing 'Enter'
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.chrome.options import Options
+
 from webdriver_manager.chrome import ChromeDriverManager
 from typing import List
 from colorama import Fore, Back, Style
@@ -13,8 +13,14 @@ import requests
 import os
 import webbrowser
 
+
+# CONSTANTS --- TOGGLE IF NEEDED
+
 TIMEOUT_SECONDS = 5000
+DELAY_PER_ACTION = 0.1
 DELAY_PER_WORD = 0.1
+
+ADBLOCK_EXTENSION_PATH = os.path.join(os.getcwd(), 'extensions', 'adblocker')
 
 class WBR_Console:
     @staticmethod
@@ -37,27 +43,74 @@ class WBR_Console:
         print("\n" * 100)
 
 class WBR_Browser:
-    def __init__(self, setupBrowser : bool = True):
+    def __init__(self, setupBrowser : bool = True, setupAdBlocker : bool = True):
         if setupBrowser:
             self.SetupBrowser(True)
-    
+            
+        if setupAdBlocker:
+            self.SetupAdBlocker()
 
-    def SetupBrowser(self, setupDriver : bool = False):
+    def SetupBrowser(self, setupWBR : bool = False):
         """
         Sets up the browser so this class will work correctly.
         """
-        if setupDriver:
-            WBR_Console.PrintInfo("Setting up chrome service...")
-            
-            self.Driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        chrome_options = Options()
 
-            WBR_Console.PrintSuccess("Chrome service setted up!")
-            WBR_Console.PrintInfo("Accessing the what beats rock website...")
+        WBR_Console.PrintInfo("Setting up chrome service...")
+        
+        self.Driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-            self.Driver.get("https://whatbeatsrock.com")
+        WBR_Console.PrintSuccess("Chrome service setted up!")
 
-        if setupDriver:
-            WBR_Console.PrintSuccess("Chrome setup success!")
+        if setupWBR:
+            self.SetupWBR()
+
+    def SetupWBR(self):
+
+        self.Driver.get("https://whatbeatsrock.com")
+        WBR_Console.PrintSuccess("Opened what beats rock website.")
+    
+    def SetupAdBlocker(self):
+        """
+        Sets up the ad blocker
+        """
+
+        WBR_Console.PrintInfo("Setting up adblocker...")
+        self.Driver.switch_to.new_window("window")
+        self.Driver.get("chrome://extensions")
+
+        script = """
+        return document.querySelector('extensions-manager')
+            .shadowRoot.querySelector('extensions-toolbar')
+            .shadowRoot.querySelector('#devMode');
+        """
+
+        toggle = self.Driver.execute_script(script)
+        toggle.click()
+
+        WBR_Console.PrintSuccess("Enabled developer mode")
+        time.sleep(1)
+
+        load_unpacked_script = """
+        return document.querySelector('extensions-manager')
+            .shadowRoot.querySelector('extensions-toolbar')
+            .shadowRoot.querySelector('#loadUnpacked');
+        """
+
+        load_button = self.Driver.execute_script(load_unpacked_script)
+        load_button.click()
+
+        WBR_Console.PrintSuccess("Pressed button to show extension folder.")
+
+        print("-"*15)
+        input(f"[SELECTION] Select folder in path '{ADBLOCK_EXTENSION_PATH}' for file upload prompt and once done press 'ENTER' if extension is loaded: ")
+        print("-"*15)
+
+        WBR_Console.PrintSuccess("Adblock setted up!")
+
+        self.Driver.close()
+        self.Driver.switch_to.window(self.Driver.window_handles[0])
+        self.Driver.refresh()
 
 
     def PressGo(self) -> None:
@@ -69,6 +122,7 @@ class WBR_Browser:
             EC.element_to_be_clickable((By.CSS_SELECTOR, "form button"))
         )
         Element_GoButton = self.Driver.find_element(By.CSS_SELECTOR, "form button")
+        self.Driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", Element_GoButton)
         Element_GoButton.click()
         
 
@@ -82,7 +136,7 @@ class WBR_Browser:
         )
 
         Element_InputField = self.Driver.find_element(By.CSS_SELECTOR, "form input")
-        
+        self.Driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", Element_InputField)
         Element_InputField.clear()
         Element_InputField.send_keys(word)
 
@@ -306,18 +360,16 @@ Upload your own word bank
         print("----------------")
         input("Press enter to start wbr-auto: ")
 
-        i = 1
-        for word in self.words:
+        for i, word in enumerate(self.words):
             word = WBR_WordBank.RemoveNumbers(word)
 
-            WBR_Console.PrintInfo(f"Word {i}/{len(self.words)}...")
+            WBR_Console.PrintInfo(f"Word {i+1}/{len(self.words)}...")
             WBR_Console.PrintInfo(f"Word: {word}")
 
-            self.browser_instance.SetupBrowser()
             self.browser_instance.TypeWord(word)
+            time.sleep(DELAY_PER_ACTION)
             self.browser_instance.ClickNextButton()
             time.sleep(DELAY_PER_WORD)
-            i += 1
 
         WBR_Console.PrintSuccess(f"Finished all {len(self.words)} words!")
 
