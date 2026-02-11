@@ -1,6 +1,6 @@
 # wbr-auto v0.1
 
-Auto-plays the game [WhatBeatsRock](https://whatbeatsrock.com) with selenium engine with [word list](https://nglam.dev/resources/wbr/).
+Auto-plays the game [WhatBeatsRock](https://whatbeatsrock.com) with selenium engine with [word list](https://nglam.dev/resources/wbr-auto.txt).
 
 ## Video Demo
 
